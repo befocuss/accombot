@@ -20,7 +20,7 @@ This Bot use chatglm4—v and chatglm which provide by zhipu.You just need a api
 
 ## 展示
 **结合视觉信息回答**
-![image]('https://github.com/befocuss/accombot/blob/main/image/杯子.png')
+![image]('https://github.com/befocuss/accombot/blob/main/image/cup.png')
 ![image]('https://github.com/befocuss/accombot/blob/main/image/穿搭.png')
 
 ## ps
