@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>conversation</title>
+</head>
+<body>
+    <h1>对话</h1>
+
+    <!-- 显示用户输入的文本 -->
+    <div>
+        <p><strong>用户：</strong>{{ user_input }}</p>
+    </div>
+
+    <!-- 显示生成的响应文本 -->
+    <div id="bot_response">
+        <p><strong>机器人：</strong>{{ bot_response }}</p>
+    </div>
+
+    <!-- 表单用于接收用户输入 -->
+    <form id="myForm" action="/process_text" method="post">
+        <label for="input_text">请输入您的问题：</label><br>
+        <textarea id="input_text" name="text" rows="4" cols="50"></textarea><br>
+        <input type="submit" value="提交">
+    </form>
+<h1>Camera Capture</h1>
+<video id="video" width="640" height="480" autoplay></video>
+<script>
+    const video = document.getElementById('video');
+   // Get access to the camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+            video.srcObject = stream;
+        })
+        .catch((err) => {
+            console.error('Error accessing the camera:', err);
+        });
+    function captureAndSend() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/capture');
+        // xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); // 设置请求头
+        xhr.setRequestHeader("ChatID", document.cookie);
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+        const imageData = canvas.toDataURL('image/jpeg');
+        const formData = new FormData();
+        
+        formData.append('imageData', imageData);
+
+        xhr.send(formData);
+    }
+
+    // Automatically capture frame every 30 milliseconds
+    setInterval(captureAndSend, 3000); // 30 seconds
+</script>
+<script>
+    document.getElementById("myForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // 阻止表单默认提交行为
+        var formDataT = new FormData(document.getElementById("myForm")); // 获取表单数据    
+        var xhrT = new XMLHttpRequest();
+        xhrT.open("POST", "/process_text", true);
+        // xhrT.setRequestHeader("Content-Type", "multipart/form-data");
+        xhrT.setRequestHeader("ChatID", document.cookie); 
+        xhrT.onreadystatechange = function() {
+                if (xhrT.readyState === XMLHttpRequest.DONE) {
+                    if (xhrT.status === 200) {
+                        // 请求成功，更新页面内容
+                        document.getElementById("bot_response").innerHTML = xhrT.responseText;
+                    } else {
+                        // 请求失败
+                        console.error("请求失败：" + xhrT.status);
+                    }
+                }
+            };
+        xhrT.send(formDataT);
+
+    });
+</script>
+</body>
+</html>
+
+</html>

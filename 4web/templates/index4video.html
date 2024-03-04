@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camera Capture</title>
+</head>
+<body>
+<h1>Camera Capture</h1>
+<video id="video" width="640" height="480" autoplay></video>
+<script>
+    const video = document.getElementById('video');
+
+    // Get access to the camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+            video.srcObject = stream;
+        })
+        .catch((err) => {
+            console.error('Error accessing the camera:', err);
+        });
+
+    // Function to capture frame and send it to backend
+    function captureAndSend() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/capture');
+        // xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/jpeg');
+        const formData = new FormData();
+        formData.append('imageData', imageData);
+        xhr.send(formData);
+    }
+
+    // Automatically capture frame every 30 milliseconds
+    setInterval(captureAndSend, 300); // 30 seconds
+</script>
+</body>
+</html>
+
+
+    // Automatically capture frame every 30 milliseconds
+    setInterval(captureAndSend, 30 * 1000); // Convert seconds to milliseconds
+</script>
+</body>
+</html>
